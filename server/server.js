@@ -25,6 +25,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api/tasks', require('./routes/taskRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 // Original route for fetching the server message
+
+
 app.get('/api/getMessage', (req, res) => {
     const os = require('os');
     const serverName = os.hostname(); // Get the server name

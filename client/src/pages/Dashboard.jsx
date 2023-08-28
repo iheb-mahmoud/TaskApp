@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import TaskForm from '../components/TaskForm';
@@ -7,7 +7,7 @@ import Spinner from '../components/Spinner';
 import { getTasks } from '../features/tasks/taskSlice';
 import { reset } from '../features/auth/authSlice';
 import wavingHandIcon from '../assets/images/wave.png';
-
+import axios from 'axios'; // Make sure to install axios using: npm install axios
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -17,10 +17,17 @@ function Dashboard() {
   const { tasks, isLoading, isError, message } = useSelector((state) => state.tasks);
 
   const [serverMessage, setServerMessage] = useState('');
-  fetch('/api/getMessage')
-      .then((response) => response.json())
-      .then((data) => setServerMessage(data.message))
-      .catch((error) => console.error('Error fetching server message:', error));
+
+  // Fetch the server message on every render (including refresh)
+  useEffect(() => {
+    axios.get('/api/getMessage')
+      .then(response => {
+        setServerMessage(response.data.message);
+      })
+      .catch(error => {
+        console.error('Error fetching server message:', error);
+      });
+  });
 
   useEffect(() => {
     if (isError) {
@@ -33,7 +40,6 @@ function Dashboard() {
 
     dispatch(getTasks());
 
- 
     return () => {
       dispatch(reset());
     };
@@ -45,22 +51,18 @@ function Dashboard() {
 
   return (
     <>
-    <section className="servermessage">
-        <h1>
-        {serverMessage} !
-          
-          
-        </h1>
+      <section className="servermessage">
+        <h1>{serverMessage} !</h1>
       </section>
 
       <section className="welcome-section">
-  <div className="waving-hand">
-    <img src={wavingHandIcon} alt="Waving Hand" />
-  </div>
-  <div className="welcome-text">
-    Welcome to your tasklist, {user && user.name}!
-  </div>
-</section>
+        <div className="waving-hand">
+          <img src={wavingHandIcon} alt="Waving Hand" />
+        </div>
+        <div className="welcome-text">
+          Welcome to your tasklist, {user && user.name}!
+        </div>
+      </section>
 
       <TaskForm />
 
@@ -80,3 +82,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
